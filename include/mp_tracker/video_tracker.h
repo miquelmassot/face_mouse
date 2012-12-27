@@ -20,7 +20,5 @@ class VideoTracker{
 
   private:
     int init(void);
-    static void onMouseCb(int event, int x, int y, int flags, void *param);
-    void drawPoints( std::string window_name, cv::Mat & frame);
 
 };

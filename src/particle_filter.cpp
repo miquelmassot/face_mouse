@@ -9,6 +9,36 @@ ParticleFilter::ParticleFilter(int n){
 ParticleFilter::init(int n){
   //TODO change seed
   srand(0);
+
+  //Xlib
+  Display *dpy = XOpenDisplay((0));
+  assert(dpy);
+  int blackColor = BlackPixel(dpy, DefaultScreen(dpy));
+  int whiteColor = WhitePixel(dpy, DefaultScreen(dpy));
+  // Create the window
+  Window w = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 0, 0, 
+                                 200, 100, 0, blackColor, blackColor);
+  // We want to get MapNotify events
+  XSelectInput(dpy, w, StructureNotifyMask);
+  // "Map" the window (that is, make it appear on the screen)
+  XMapWindow(dpy, w);
+  // Create a "Graphics Context"
+  GC gc = XCreateGC(dpy, w, 0, (0));
+  // Tell the GC we draw using the white color
+  XSetForeground(dpy, gc, whiteColor);
+  // Wait for the MapNotify event
+  for(;;) {
+    XEvent e;
+    XNextEvent(dpy, &e);
+    if (e.type == MapNotify)
+      break;
+  }
+  // Draw the line
+  XDrawLine(dpy, w, gc, 10, 60, 180, 20);
+  // Send the "DrawLine" request to the server
+  XFlush(dpy);
+  // Wait for 10 seconds
+  sleep(10);
 }
 
 ParticleFilter::generateParticles(int minx, int maxx, 
