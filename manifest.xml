@@ -1,0 +1,16 @@
+<package>
+  <description brief="mp_tracker">
+
+     mp_tracker
+
+  </description>
+  <author>Miquel Massot</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/condensation_mprob</url>
+  <depend package="roscpp"/>
+  <rosdep name="opencv2"/>
+
+</package>
+
+
