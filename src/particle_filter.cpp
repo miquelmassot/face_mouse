@@ -1,54 +1,31 @@
-#include <stdio>
-#include <stdlib>
-#include <algorithm>
+#include <algorithm> // sort function
+#include <X11/Xlib.h>  // X11 library headers
+#include <iostream>
+#include <cstdlib> //random numbers
+#include <assert.h>
+
+#include <mp_tracker/particle_filter.h>
+#include <mp_tracker/video_tracker.h>
+
+//using namespace srv;
 
 ParticleFilter::ParticleFilter(int n){
-  init(int n);
+  init(n);
 }
 
-ParticleFilter::init(int n){
+void ParticleFilter::init(int n){
   //TODO change seed
   srand(0);
-
-  //Xlib
-  Display *dpy = XOpenDisplay((0));
-  assert(dpy);
-  int blackColor = BlackPixel(dpy, DefaultScreen(dpy));
-  int whiteColor = WhitePixel(dpy, DefaultScreen(dpy));
-  // Create the window
-  Window w = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 0, 0, 
-                                 200, 100, 0, blackColor, blackColor);
-  // We want to get MapNotify events
-  XSelectInput(dpy, w, StructureNotifyMask);
-  // "Map" the window (that is, make it appear on the screen)
-  XMapWindow(dpy, w);
-  // Create a "Graphics Context"
-  GC gc = XCreateGC(dpy, w, 0, (0));
-  // Tell the GC we draw using the white color
-  XSetForeground(dpy, gc, whiteColor);
-  // Wait for the MapNotify event
-  for(;;) {
-    XEvent e;
-    XNextEvent(dpy, &e);
-    if (e.type == MapNotify)
-      break;
-  }
-  // Draw the line
-  XDrawLine(dpy, w, gc, 10, 60, 180, 20);
-  // Send the "DrawLine" request to the server
-  XFlush(dpy);
-  // Wait for 10 seconds
-  sleep(10);
 }
 
-ParticleFilter::generateParticles(int minx, int maxx, 
-                                  int miny, int maxy, 
-                                  int mint, int maxt){
+void ParticleFilter::generateParticles(double minx, double maxx, 
+                                       double miny, double maxy, 
+                                       double mint, double maxt){
   size_t N = p_.size();
   for(size_t i=0; i<N; i++){
-    p_[i].pos[0] = minx + ((double)rand()/(RAND_MAX+1))*maxx;
-    p_[i].pos[1] = miny + ((double)rand()/(RAND_MAX+1))*maxy;
-    p_[i].pos[3] = mint + ((double)rand()/(RAND_MAX+1))*maxt;
+    p_[i].pos[0] = minx + ((double)rand()/((double)RAND_MAX+1.0))*maxx;
+    p_[i].pos[1] = miny + ((double)rand()/((double)RAND_MAX+1.0))*maxy;
+    p_[i].pos[2] = mint + ((double)rand()/((double)RAND_MAX+1.0))*maxt; //TODO check this
     p_[i].age = 0;
     p_[i].weight = 0;
   }
@@ -60,7 +37,7 @@ Particle ParticleFilter::getBestParticle(void){
   sortParticles();
   size_t N = p_.size();
   int best10 = (int)(0.9*(double)N);
-  Particle p_best;
+  Particle p;
   for (size_t i=best10; i<N; i++){
     p.pos[0] += p_[i].pos[0];
     p.pos[1] += p_[i].pos[1];
@@ -68,44 +45,51 @@ Particle ParticleFilter::getBestParticle(void){
     p.vel[1] += p_[i].vel[1];
     p.weight += p_[i].weight;
   }
-  p.pos[0] /= (N-bes10);
-  p.pos[1] /= (N-bes10);
-  p.vel[0] /= (N-bes10);
-  p.vel[1] /= (N-bes10);
-  p.weight /= (N-bes10);
-
+  p.pos[0] /= (N-best10);
+  p.pos[1] /= (N-best10);
+  p.vel[0] /= (N-best10);
+  p.vel[1] /= (N-best10);
+  p.weight /= (N-best10);
+  return p;
 }
 
-void ParticleFilter::getMeasurements(){
+void ParticleFilter::getMeasurements(void){
   //TODO use VideoTracker
   // and dont do a while(1) ! 
   VideoTracker vt;
 
   std::vector<cv::Rect> faces;
-  faces = vt.detectAndDisplay(0);
+  faces = vt.detect();
   // suppose there's only one face?
   // i'll get only the first
 
 }
 
-void ParticleFilter::predict(){
+void ParticleFilter::predict(void){
   //TODO use the particle velocity and move
   //the particle position according to vel
   //plus some random noise.
   size_t N = p_.size();
   for(size_t i=0; i<N; i++){
-    double noise = ((double) rand() / (RAND_MAX+1));
-    p_[i].pos[0] = p_[i].vel[0] + noise;
-    p_[i].pos[1] = p_[i].vel[1] + noise;
+    double noisex = ((double) rand() / ((double)RAND_MAX+1.0));
+    double noisey = ((double) rand() / ((double)RAND_MAX+1.0));
+    double noisevx = ((double) rand() / ((double)RAND_MAX+1.0));
+    double noisevy = ((double) rand() / ((double)RAND_MAX+1.0));
+    p_[i].pos[0] = p_[i].vel[0] + noisex;
+    p_[i].pos[1] = p_[i].vel[1] + noisey;
+    p_[i].vel[0] += noisevx;
+    p_[i].vel[1] += noisevy;
   }
 
 }
 
-void ParticleFilter::evaluateObservation(int i){
+double ParticleFilter::evaluateObservation(int i){
+  double ret = 0;
 
+  return ret;
 }
 
-void ParticleFilter::weightParticles(){
+void ParticleFilter::weightParticles(void){
   size_t N = p_.size();
   double cum_weight = 0;
   // Calculate the error between observation and prediction
@@ -120,24 +104,20 @@ void ParticleFilter::weightParticles(){
     p_[i].weight /= cum_weight;
 }
 
-bool ParticleFilter::compareParticles(Particle p1, Particle p2){
-  return p1.weight>p2.weight;
-}
-
 void ParticleFilter::sortParticles(void){
-  std::sort(p_.begin(), p_.end(), ParticleFilter::compareParticles);
+  std::sort(p_.begin(), p_.end(), Particle());
 }
 
-std::vector<Particle> ParticleFilter::systematicResample(){
+std::vector<Particle> ParticleFilter::systematicResample(void){
   size_t N = p_.size();
   //generate random step number
-  double rnd =((double) rand() / (RAND_MAX+1));
+  double rnd =((double) rand() / ((double)RAND_MAX+1.0));
   double step = 1.0/N * rnd;
   // create an incremental weight vector
   std::vector<int> c(N);
   c[1] = p_[1].weight;
   for(size_t i=1; i<N; i++){
-    c[i] = c[i+1] + p_[i];
+    c[i] = c[i+1] + p_[i].weight;
   }
   std::vector<Particle> out(N);
 
@@ -161,10 +141,10 @@ std::vector<Particle> ParticleFilter::systematicResample(){
   return out;
 }
 
-void ParticleFilter::run(){
+void ParticleFilter::run(void){
   getMeasurements();
   predict();
   weightParticles();
-  systematicResampling();
-  regenerate();
+  std::vector<Particle> p(p_.size());
+  p = systematicResample();
 }

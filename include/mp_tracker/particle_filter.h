@@ -1,35 +1,30 @@
+#ifndef PARTICLE_FILTER_H
+#define PARTICLE_FILTER_H
 
+#include "opencv2/imgproc/imgproc.hpp"
 
-struct Particle{
-  cv::Vec2d pos;  // Position of the particle x,y,theta
-  cv::Vec2d vel; // Velocity of the particle
-  cv::Vec3b color; // Color of the particle
-  int age;          // Current age of the particle
-  double weight;         // Weight of the particle
-};
+#include <mp_tracker/particle.h>
 
+//namespace srv{
 class ParticleFilter{
-
   public:
     ParticleFilter(int n);
-    run();
+    void run(void);
 
   protected:
-
-  private:
     std::vector<Particle> p_; // particle vector
     cv::Mat Pz;
     cv::Vec3d m_; // measurement
 
-    void init(int n);
-    void generateParticles();//done
-    void getMeasurements();
-    void predict(); //done
-    void getBestParticle(void){
-    bool compareParticles(Particle p1, Particle p2);
+    void generateParticles(double minx, double maxx, double miny, double maxy, double mint, double maxt);//done
+    void getMeasurements(void);
+    void predict(void); //done
+    Particle getBestParticle(void);
     void sortParticles(void);
-    void weightParticles(); //done
-    std::vector<Particle> systematicResample(); //done
-    void evaluateObservation(int i);
-
+    void weightParticles(void); //done
+    std::vector<Particle> systematicResample(void); //done
+    double evaluateObservation(int i);
+    void init(int n);
 };
+//};
+#endif

@@ -1,14 +1,18 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "opencv2/highgui/highgui.hpp"
-
 #include <X11/Xlib.h>
 #include <assert.h>
 
 #include <mp_tracker/video_tracker.h>
 
 VideoTracker::VideoTracker(){
+  display_ = 0;
+  init();
+}
+
+VideoTracker::VideoTracker(int display){
+  display_ = display;
   init();
 }
 
@@ -19,9 +23,6 @@ int VideoTracker::init(){
   //eyes_cascade_name_ = "haarcascade_eye_tree_eyeglasses.xml";
   eyes_cascade_name_ = "parojos.xml";
   
-  window_name_ = "Capture - Face detection";
-  CvCapture *capture;
-  cv::namedWindow(window_name_,1);
   // -- 1. Load the cascades
   if (!face_cascade_.load(face_cascade_name_)) { printf("--(!)Error loading\n");
                                                return -1; }
@@ -29,30 +30,49 @@ int VideoTracker::init(){
   if (!eyes_cascade_.load(eyes_cascade_name_)) { printf("--(!)Error loading\n");
                                                return -1; }
 
+  if(display_){
+    window_name_ = "Capture - Face detection";
+    cv::namedWindow(window_name_,1);
+  }
+
+  stream_ = openStream();
+
+  return 0;
+}
+
+CvCapture* VideoTracker::openStream(){
   // -- 2. Read the video stream
+  CvCapture *capture;
   capture = cvCaptureFromCAM(-1);
 
-  if (capture) {
-    while (true){
-      orig_frame_ = cvQueryFrame(capture);
-      // -- 3. Apply the classifier to the frame
-      if (!orig_frame_.empty()) 
-        detectAndDisplay(); 
-      else{ 
-        printf(" --(!) No captured frame -- Break!"); 
-        break; 
-      }
+  return capture;
+}
 
-      int c = cv::waitKey(10);
-
-      if ((char)c == 'c') break;
+int VideoTracker::step(){
+  if (stream_) {
+    orig_frame_ = cvQueryFrame(stream_);
+    // -- 3. Apply the classifier to the frame
+    if (!orig_frame_.empty()) 
+      faces = detect();
+    else{ 
+      printf(" --(!) No captured frame -- Break!"); 
+      return 0;
     }
+
+    int c = cv::waitKey(10);
+
+    if ((char)c == 'c') return 0;;
   }
+  return 1;
+}
+
+int VideoTracker::loop(){
+  while(step()){}
   return 0;
 }
 
 /** @function detectAndDisplay */
-std::vector<cv::Rect> VideoTracker::detectAndDisplay(int display=1){
+std::vector<cv::Rect> VideoTracker::detect(){
 
   std::vector<cv::Rect> faces;
   cv::Mat frame_gray;
@@ -85,7 +105,7 @@ std::vector<cv::Rect> VideoTracker::detectAndDisplay(int display=1){
                                 faces[i].height * 0.5), 0, 0, 360,
             cv::Scalar(255, 0, 255), 4, 8, 0);
     
-    std::cout << "Face center is at: " << center << std::endl;
+    std::cout << "Face " << i+1 << " center is at: " << center << std::endl;
 
     cv::Mat faceROI = orig_frame_gray(faces[i]);
     std::vector<cv::Rect> eyes;
@@ -106,11 +126,10 @@ std::vector<cv::Rect> VideoTracker::detectAndDisplay(int display=1){
     }
   }
   
-  if(display){
+  if(display_){
     // -- Show what you got
     cv::imshow(window_name_, orig_frame_);
   }
 
   return faces;
-}
 }
