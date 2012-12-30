@@ -1,0 +1,15 @@
+bin/*
+build/*
+include/*/*.h~
+lib/*
+src/*.cpp~
+.settings/*
+*.cproject
+*.pyproject
+*.pydevproject
+*.project
+*.*~
+tags
+*.cmake
+*.jpg
+*.tif
