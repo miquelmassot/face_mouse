@@ -133,3 +133,17 @@ std::vector<cv::Rect> VideoTracker::detect(){
 
   return faces;
 }
+
+void VideoTracker::drawPoint(int x, int y){
+  cv::circle(orig_frame_, cv::Point(x,y), 3, cv::Scalar(0,0,255), 2);
+  cv::imshow(window_name_, orig_frame_);
+  cv::waitKey(3);
+}
+
+void VideoTracker::drawRectangle(int x, int y, int width, int height){
+  cv::Point pt1(x, y);
+  cv::Point pt2(x+width, y+height);
+  cv::rectangle(orig_frame_, pt1, pt2, cv::Scalar(0,0,255));
+  cv::imshow(window_name_, orig_frame_);
+  cv::waitKey(3);
+}

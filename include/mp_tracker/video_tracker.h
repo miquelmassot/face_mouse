@@ -16,7 +16,8 @@ class VideoTracker{
     CvCapture* openStream();
     int step();
     int loop();
-
+    void drawPoint(int x, int y);
+    void drawRectangle(int x, int y, int width, int height);
   protected:
     cv::Mat frame_;
     cv::Mat orig_frame_;

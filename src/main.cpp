@@ -10,7 +10,7 @@ int main(int argc, const char **argv){
   MouseControl mc;
   //vt.loop();
   
-  int orig_x,orig_y;
+  int x_face,y_face;
   //mc.grabMouse();
 
   int scale = 1;
@@ -23,20 +23,29 @@ int main(int argc, const char **argv){
   // initialization
   while(vt.step()){
    if(vt.faces.size()>0){
-    orig_x = vt.faces[0].x;
-    orig_y = vt.faces[0].y;
-    //TODO vt.drawPoint(orig_x,orig_y);
+    x_face = vt.faces[0].x + vt.faces[0].width/2;
+    y_face = vt.faces[0].y + vt.faces[0].height/2;
+    vt.drawPoint(x_face,y_face);
+    vt.drawRectangle(x_face - dead_zone_x/2, y_face-dead_zone_y/2, 
+        dead_zone_x, dead_zone_y);
     break;
    }
   }
+  
+  sleep(10);
+
 
   // run continuously
   while(vt.step()){
-   if(vt.faces.size()>0){
-      mov_x = 0;
-      mov_y = 0;
-      mov_x = vt.faces[0].x - orig_x;
-      mov_y = vt.faces[0].y - orig_y;
+    vt.drawPoint(x_face,y_face);
+    vt.drawRectangle(x_face - dead_zone_x/2, y_face-dead_zone_y/2, 
+        dead_zone_x, dead_zone_y);
+    if(vt.faces.size()>0){
+      int new_x_face = vt.faces[0].x + vt.faces[0].width/2;
+      int new_y_face = vt.faces[0].y + vt.faces[0].height/2;
+      vt.drawPoint(new_x_face,new_y_face);
+      mov_x = new_x_face - x_face;
+      mov_y = new_y_face - y_face;
       if(((mov_x > dead_zone_x)||(-mov_x > dead_zone_x))||
           ((mov_y > dead_zone_y)||(-mov_y > dead_zone_y))){
         mc.getMousePosition();
