@@ -61,10 +61,13 @@ void ParticleFilter::getMeasurements(void){
   // and dont do a while(1) ! 
   VideoTracker vt;
 
-  std::vector<cv::Rect> faces;
-  faces = vt.detect();
+  vt.step();
+
   // suppose there's only one face?
   // i'll get only the first
+  
+  m_.x = vt.faces[0].x + vt.faces[0].width/2;
+  m_.y = vt.faces[0].y + vt.faces[0].height/2;
 
 }
 
@@ -87,9 +90,14 @@ void ParticleFilter::predict(void){
 }
 
 double ParticleFilter::evaluateObservation(int i){
-  double ret = 0;
+  double weight = 0;
 
-  return ret;
+  double ex = p_[i].x - m_.x;
+  double ey = p_[i].x - m_.y;
+
+  weight = sqrt(ex*ex + ey*ey);
+
+  return 1/weight;
 }
 
 void ParticleFilter::weightParticles(void){

@@ -14,7 +14,7 @@ class ParticleFilter{
   protected:
     std::vector<Particle> p_; // particle vector
     cv::Mat Pz;
-    cv::Vec3d m_; // measurement
+    cv::Point m_; // measurement
 
     void generateParticles(double minx, double maxx, double miny, double maxy, double mint, double maxt);//done
     void getMeasurements(void);
