@@ -32,9 +32,6 @@ int main(int argc, const char **argv){
     break;
    }
   }
-  
-  sleep(10);
-
 
   // run continuously
   while(vt.step()){

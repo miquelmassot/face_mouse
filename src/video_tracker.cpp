@@ -20,7 +20,6 @@ VideoTracker::VideoTracker(int display){
 int VideoTracker::init(){
 
   face_cascade_name_ = "haarcascade_frontalface_alt.xml";
-  //eyes_cascade_name_ = "haarcascade_eye_tree_eyeglasses.xml";
   eyes_cascade_name_ = "parojos.xml";
   
   // -- 1. Load the cascades
@@ -34,23 +33,17 @@ int VideoTracker::init(){
     window_name_ = "Capture - Face detection";
     cv::namedWindow(window_name_,1);
   }
-
-  stream_ = openStream();
+  
+  // --2. Open the camera
+  stream_.open(0);
 
   return 0;
 }
 
-CvCapture* VideoTracker::openStream(){
-  // -- 2. Read the video stream
-  CvCapture *capture;
-  capture = cvCaptureFromCAM(-1);
-
-  return capture;
-}
-
 int VideoTracker::step(){
-  if (stream_) {
-    orig_frame_ = cvQueryFrame(stream_);
+  if (stream_.isOpened()) {
+    stream_.read(orig_frame_);
+    
     // -- 3. Apply the classifier to the frame
     if (!orig_frame_.empty()) 
       faces = detect();

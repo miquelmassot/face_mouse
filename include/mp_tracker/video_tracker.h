@@ -1,6 +1,7 @@
 #ifndef VIDEO_TRACKER_H
 #define VIDEO_TRACKER_H
 
+#include "opencv2/opencv.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -13,7 +14,6 @@ class VideoTracker{
     VideoTracker(void);
     VideoTracker(int display);
     std::vector<cv::Rect> detect();
-    CvCapture* openStream();
     int step();
     int loop();
     void drawPoint(int x, int y);
@@ -28,7 +28,7 @@ class VideoTracker{
     std::string window_name_;
     cv::CascadeClassifier face_cascade_;
     cv::CascadeClassifier eyes_cascade_;
-    CvCapture *stream_;
+    cv::VideoCapture stream_;
     int display_;
     int init(void);
 
