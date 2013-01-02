@@ -3,7 +3,8 @@
 
 #include "opencv2/imgproc/imgproc.hpp"
 
-#include <mp_tracker/particle.h>
+#include <face_mouse/video_tracker.h>
+#include <face_mouse/particle.h>
 
 //namespace srv{
 class ParticleFilter{
@@ -15,7 +16,9 @@ class ParticleFilter{
     std::vector<Particle> p_; // particle vector
     cv::Mat Pz;
     cv::Point m_; // measurement
+    VideoTracker vt_;
 
+    void generateParticles(void);//done
     void generateParticles(double minx, double maxx, double miny, double maxy, double mint, double maxt);//done
     void getMeasurements(void);
     void predict(void); //done

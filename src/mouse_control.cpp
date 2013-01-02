@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include <mp_tracker/mouse_control.h>
+#include <face_mouse/mouse_control.h>
 
 MouseControl::MouseControl(){
   init();

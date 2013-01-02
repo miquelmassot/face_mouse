@@ -4,10 +4,11 @@
 #include <cstdlib> //random numbers
 #include <assert.h>
 
-#include <mp_tracker/particle_filter.h>
-#include <mp_tracker/video_tracker.h>
+#include <face_mouse/particle_filter.h>
+#include <face_mouse/video_tracker.h>
 
 //using namespace srv;
+const double PI = std::atan(1.0)*4;
 
 ParticleFilter::ParticleFilter(int n){
   init(n);
@@ -18,6 +19,26 @@ void ParticleFilter::init(int n){
   srand(0);
 }
 
+void ParticleFilter::generateParticles(void){
+  // get the properties of the camera frame in order to generate the particles
+  std::vector<int> resolution = vt_.getResolution();
+  double minx = 0;
+  double miny = 0;
+  double maxx = (double) resolution[0];
+  double maxy = (double) resolution[1];
+  double mint = 0;
+  double maxt = PI;
+  size_t N = p_.size();
+  for(size_t i=0; i<N; i++){
+    p_[i].x = minx + ((double)rand()/((double)RAND_MAX+1.0))*maxx;
+    p_[i].y = miny + ((double)rand()/((double)RAND_MAX+1.0))*maxy;
+    p_[i].t = mint + ((double)rand()/((double)RAND_MAX+1.0))*maxt;
+    p_[i].vx = 0;
+    p_[i].vy = 0;
+    p_[i].age = 0;
+    p_[i].w = 0;
+  }
+}
 void ParticleFilter::generateParticles(double minx, double maxx, 
                                        double miny, double maxy, 
                                        double mint, double maxt){
@@ -59,15 +80,14 @@ Particle ParticleFilter::getBestParticle(void){
 void ParticleFilter::getMeasurements(void){
   //TODO use VideoTracker
   // and dont do a while(1) ! 
-  VideoTracker vt;
 
-  vt.step();
+  vt_.step();
 
   // suppose there's only one face?
   // i'll get only the first
   
-  m_.x = vt.faces[0].x + vt.faces[0].width/2;
-  m_.y = vt.faces[0].y + vt.faces[0].height/2;
+  m_.x = vt_.faces[0].x + vt_.faces[0].width/2;
+  m_.y = vt_.faces[0].y + vt_.faces[0].height/2;
 
 }
 

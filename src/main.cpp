@@ -1,8 +1,8 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <mp_tracker/mouse_control.h>
-#include <mp_tracker/video_tracker.h>
+#include <face_mouse/mouse_control.h>
+#include <face_mouse/video_tracker.h>
 
 /** @function main */
 int main(int argc, const char **argv){

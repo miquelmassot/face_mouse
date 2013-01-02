@@ -4,7 +4,7 @@
 #include <X11/Xlib.h>
 #include <assert.h>
 
-#include <mp_tracker/video_tracker.h>
+#include <face_mouse/video_tracker.h>
 
 VideoTracker::VideoTracker(){
   display_ = 0;
@@ -139,4 +139,11 @@ void VideoTracker::drawRectangle(int x, int y, int width, int height){
   cv::rectangle(orig_frame_, pt1, pt2, cv::Scalar(0,0,255));
   cv::imshow(window_name_, orig_frame_);
   cv::waitKey(3);
+}
+
+std::vector<int> VideoTracker::getResolution(void){
+  std::vector<int> v(2);
+  v[0] = stream_.get(CV_CAP_PROP_FRAME_WIDTH);
+  v[1] = stream_.get(CV_CAP_PROP_FRAME_HEIGHT);
+  return v;
 }

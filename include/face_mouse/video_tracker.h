@@ -18,6 +18,7 @@ class VideoTracker{
     int loop();
     void drawPoint(int x, int y);
     void drawRectangle(int x, int y, int width, int height);
+    std::vector<int> getResolution(void);
   protected:
     cv::Mat frame_;
     cv::Mat orig_frame_;
