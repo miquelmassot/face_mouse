@@ -6,19 +6,23 @@
 class Particle{
 	public:
 		Particle(){
-			weight = 0;
-			pos[0] = 0;
-			pos[1] = 0;
-			vel[0] = 0;
-			vel[1] = 0;
+			w = 0;
+			x = 0;
+			y = 0;
+			t = 0;
+			vx = 0;
+			vy = 0;
 			age = 0;
 		};
-		cv::Vec2d pos;    // Position of the particle x,y,theta
-		cv::Vec2d vel;    // Velocity of the particle
+		double x;    // Position of the particle x,y,theta
+		double y;
+		double t;
+		double vx; // speed of the particle
+		double vy;
 		int age;          // Current age of the particle
-		double weight;    // Weight of the particle
+		double w;    // Weight of the particle
 		bool operator ()(Particle const& a, Particle const& b) const {
-		  return a.weight>b.weight;
+		  return a.w>b.w;
 		}
 };
 #endif

@@ -23,13 +23,14 @@ void ParticleFilter::generateParticles(double minx, double maxx,
                                        double mint, double maxt){
   size_t N = p_.size();
   for(size_t i=0; i<N; i++){
-    p_[i].pos[0] = minx + ((double)rand()/((double)RAND_MAX+1.0))*maxx;
-    p_[i].pos[1] = miny + ((double)rand()/((double)RAND_MAX+1.0))*maxy;
-    p_[i].pos[2] = mint + ((double)rand()/((double)RAND_MAX+1.0))*maxt; //TODO check this
+    p_[i].x = minx + ((double)rand()/((double)RAND_MAX+1.0))*maxx;
+    p_[i].y = miny + ((double)rand()/((double)RAND_MAX+1.0))*maxy;
+    p_[i].t = mint + ((double)rand()/((double)RAND_MAX+1.0))*maxt;
+    p_[i].vx = 0;
+    p_[i].vy = 0;
     p_[i].age = 0;
-    p_[i].weight = 0;
+    p_[i].w = 0;
   }
-  
 }
 
 Particle ParticleFilter::getBestParticle(void){
@@ -39,17 +40,19 @@ Particle ParticleFilter::getBestParticle(void){
   int best10 = (int)(0.9*(double)N);
   Particle p;
   for (size_t i=best10; i<N; i++){
-    p.pos[0] += p_[i].pos[0];
-    p.pos[1] += p_[i].pos[1];
-    p.vel[0] += p_[i].vel[0];
-    p.vel[1] += p_[i].vel[1];
-    p.weight += p_[i].weight;
+    p.x += p_[i].x;
+    p.y += p_[i].y;
+    p.t += p_[i].t;
+    p.vx += p_[i].vx;
+    p.vy += p_[i].vy;
+    p.w += p_[i].w;
   }
-  p.pos[0] /= (N-best10);
-  p.pos[1] /= (N-best10);
-  p.vel[0] /= (N-best10);
-  p.vel[1] /= (N-best10);
-  p.weight /= (N-best10);
+  p.x /= (N-best10);
+  p.y /= (N-best10);
+  p.t /= (N-best10);
+  p.vx /= (N-best10);
+  p.vy /= (N-best10);
+  p.w /= (N-best10);
   return p;
 }
 
@@ -75,10 +78,10 @@ void ParticleFilter::predict(void){
     double noisey = ((double) rand() / ((double)RAND_MAX+1.0));
     double noisevx = ((double) rand() / ((double)RAND_MAX+1.0));
     double noisevy = ((double) rand() / ((double)RAND_MAX+1.0));
-    p_[i].pos[0] = p_[i].vel[0] + noisex;
-    p_[i].pos[1] = p_[i].vel[1] + noisey;
-    p_[i].vel[0] += noisevx;
-    p_[i].vel[1] += noisevy;
+    p_[i].x += p_[i].vx + noisex;
+    p_[i].y += p_[i].vy + noisey;
+    p_[i].vx += noisevx;
+    p_[i].vy += noisevy;
   }
 
 }
@@ -95,13 +98,13 @@ void ParticleFilter::weightParticles(void){
   // Calculate the error between observation and prediction
   // and obtain weights
   for(size_t i=0; i<N; i++){
-    p_[i].weight =  evaluateObservation(i);
+    p_[i].w =  evaluateObservation(i);
     p_[i].age++;
-    cum_weight = p_[i].weight;
+    cum_weight = p_[i].w;
   }
   // normalize weights so that sum(p_.weight) = 1.0
   for(size_t i=0; i<N; i++)
-    p_[i].weight /= cum_weight;
+    p_[i].w /= cum_weight;
 }
 
 void ParticleFilter::sortParticles(void){
@@ -115,9 +118,9 @@ std::vector<Particle> ParticleFilter::systematicResample(void){
   double step = 1.0/N * rnd;
   // create an incremental weight vector
   std::vector<int> c(N);
-  c[1] = p_[1].weight;
+  c[1] = p_[1].w;
   for(size_t i=1; i<N; i++){
-    c[i] = c[i+1] + p_[i].weight;
+    c[i] = c[i+1] + p_[i].w;
   }
   std::vector<Particle> out(N);
 

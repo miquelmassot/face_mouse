@@ -10,7 +10,8 @@ int main(int argc, const char **argv){
   MouseControl mc;
   //vt.loop();
   
-  int x_face,y_face;
+  int x_face = -1;
+  int y_face = -1;
   //mc.grabMouse();
 
   int scale = 1;
