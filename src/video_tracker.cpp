@@ -19,22 +19,23 @@ VideoTracker::VideoTracker(int display){
 /** @function init */
 int VideoTracker::init(){
 
+  // Load the cascades
   face_cascade_name_ = "haarcascade_frontalface_alt.xml";
   eyes_cascade_name_ = "parojos.xml";
   
-  // -- 1. Load the cascades
+  
   if (!face_cascade_.load(face_cascade_name_)) { printf("--(!)Error loading\n");
                                                return -1; }
-
   if (!eyes_cascade_.load(eyes_cascade_name_)) { printf("--(!)Error loading\n");
                                                return -1; }
 
+  // Prepare OpenCV window
   if(display_){
     window_name_ = "Capture - Face detection";
     cv::namedWindow(window_name_,1);
   }
   
-  // --2. Open the camera
+  // Start videocamera streaming
   stream_.open(0);
 
   return 0;
@@ -43,8 +44,7 @@ int VideoTracker::init(){
 int VideoTracker::step(){
   if (stream_.isOpened()) {
     stream_.read(orig_frame_);
-    
-    // -- 3. Apply the classifier to the frame
+    // Apply the classifier to the frame
     if (!orig_frame_.empty()) 
       faces = detect();
     else{ 
@@ -71,6 +71,8 @@ std::vector<cv::Rect> VideoTracker::detect(){
   cv::Mat frame_gray;
   cv::Mat orig_frame_gray;
 
+  // Its enough to detect the face in a smaller image
+  // and its faster!
   cv::resize(orig_frame_, frame_, cv::Size(), 0.2, 0.2);
   
   cv::cvtColor(frame_, frame_gray, CV_BGR2GRAY);
@@ -78,7 +80,7 @@ std::vector<cv::Rect> VideoTracker::detect(){
   cv::cvtColor(orig_frame_, orig_frame_gray, CV_BGR2GRAY);
   cv::equalizeHist(orig_frame_gray, orig_frame_gray);
 
-  // -- Detect faces
+  // Detect faces
   face_cascade_.detectMultiScale(frame_gray,
                                 faces,
                                 1.1,
@@ -87,6 +89,7 @@ std::vector<cv::Rect> VideoTracker::detect(){
                                 cv::Size(30, 30));
 
   for (size_t i = 0; i < faces.size(); i++){
+    // Undo the resize to be dimensionally consistent
     faces[i].x *= 5;
     faces[i].y *= 5;
     faces[i].width *= 5;
@@ -103,7 +106,7 @@ std::vector<cv::Rect> VideoTracker::detect(){
     cv::Mat faceROI = orig_frame_gray(faces[i]);
     std::vector<cv::Rect> eyes;
 
-    // -- In each face, detect eyes
+    // In each face, detect eyes
     eyes_cascade_.detectMultiScale(faceROI,
                                   eyes,
                                   1.1,
@@ -112,6 +115,7 @@ std::vector<cv::Rect> VideoTracker::detect(){
                                   cv::Size(10, 10));
 
     for (size_t j = 0; j < eyes.size(); j++){
+      // draw the results in the showed image
       cv::Point center(faces[i].x + eyes[j].x + eyes[j].width * 0.5,
                    faces[i].y + eyes[j].y + eyes[j].height * 0.5);
       int radius = cvRound((eyes[j].width + eyes[j].height) * 0.25);
@@ -120,7 +124,7 @@ std::vector<cv::Rect> VideoTracker::detect(){
   }
   
   if(display_){
-    // -- Show what you got
+    // Show what you got
     cv::imshow(window_name_, orig_frame_);
   }
 
@@ -128,12 +132,14 @@ std::vector<cv::Rect> VideoTracker::detect(){
 }
 
 void VideoTracker::drawPoint(int x, int y){
+  // Method to draw externally a point
   cv::circle(orig_frame_, cv::Point(x,y), 3, cv::Scalar(0,0,255), 2);
   cv::imshow(window_name_, orig_frame_);
   cv::waitKey(3);
 }
 
 void VideoTracker::drawRectangle(int x, int y, int width, int height){
+  // Method to draw externally a rectangle
   cv::Point pt1(x, y);
   cv::Point pt2(x+width, y+height);
   cv::rectangle(orig_frame_, pt1, pt2, cv::Scalar(0,0,255));

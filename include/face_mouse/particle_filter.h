@@ -12,13 +12,13 @@ class ParticleFilter{
     ParticleFilter(int n);
     void run(void);
 
-  protected:
+  //protected:
     std::vector<Particle> p_; // particle vector
     cv::Mat Pz;
     cv::Point m_; // measurement
     VideoTracker vt_;
 
-    void generateParticles(void);//done
+    void generateParticles(int N);//done
     void generateParticles(double minx, double maxx, double miny, double maxy, double mint, double maxt);//done
     void getMeasurements(void);
     void predict(void); //done

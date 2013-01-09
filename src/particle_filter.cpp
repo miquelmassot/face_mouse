@@ -17,9 +17,10 @@ ParticleFilter::ParticleFilter(int n){
 void ParticleFilter::init(int n){
   //TODO change seed
   srand(0);
+  generateParticles(n);
 }
 
-void ParticleFilter::generateParticles(void){
+void ParticleFilter::generateParticles(int N){
   // get the properties of the camera frame in order to generate the particles
   std::vector<int> resolution = vt_.getResolution();
   double minx = 0;
@@ -28,7 +29,7 @@ void ParticleFilter::generateParticles(void){
   double maxy = (double) resolution[1];
   double mint = 0;
   double maxt = PI;
-  size_t N = p_.size();
+  p_.reserve(N);
   for(size_t i=0; i<N; i++){
     p_[i].x = minx + ((double)rand()/((double)RAND_MAX+1.0))*maxx;
     p_[i].y = miny + ((double)rand()/((double)RAND_MAX+1.0))*maxy;
@@ -78,17 +79,18 @@ Particle ParticleFilter::getBestParticle(void){
 }
 
 void ParticleFilter::getMeasurements(void){
-  //TODO use VideoTracker
-  // and dont do a while(1) ! 
 
-  vt_.step();
+  //TODO make it run in parallel!
 
-  // suppose there's only one face?
-  // i'll get only the first
-  
-  m_.x = vt_.faces[0].x + vt_.faces[0].width/2;
-  m_.y = vt_.faces[0].y + vt_.faces[0].height/2;
-
+  while(vt_.step()){
+    if(vt_.faces.size()>0){
+      // suppose there's only one face?
+      // i'll get only the first
+      m_.x = vt_.faces[0].x + vt_.faces[0].width/2;
+      m_.y = vt_.faces[0].y + vt_.faces[0].height/2;
+    break;
+   }
+  }
 }
 
 void ParticleFilter::predict(void){
@@ -146,17 +148,17 @@ std::vector<Particle> ParticleFilter::systematicResample(void){
   double step = 1.0/N * rnd;
   // create an incremental weight vector
   std::vector<int> c(N);
-  c[1] = p_[1].w;
+  c[0] = p_[0].w;/*
   for(size_t i=1; i<N; i++){
-    c[i] = c[i+1] + p_[i].w;
-  }
+    c[i] = c[i-1] + p_[i].w;
+  }*/
   std::vector<Particle> out(N);
-
+  /*
   size_t i = 0;
   size_t j = 0;
   // select particles that are pointed by step in vector c
-  while (j<N && step<1){
-    if (i==1 && step < c[i]){
+  while (j<N && step<=1){
+    if (i==0 && step < c[i]){
       out[j] = p_[i+1];
       j++;
       step = step + 1.0/N;
@@ -164,10 +166,10 @@ std::vector<Particle> ParticleFilter::systematicResample(void){
       out[j] = p_[i];
       j++;
       step = step + 1.0/N;
-    }else if (i<N-1){
+    }else if (i<N-2){
       i++;
     }
-  }
+  }*/
   // return out particle vector
   return out;
 }

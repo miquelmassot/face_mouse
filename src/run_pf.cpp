@@ -7,7 +7,30 @@
 int main(int argc, char **argv){
   ParticleFilter pf(1000);
 
-  pf.generateParticles();
+  std::cout << "Particles generated!" << std::endl;
 
+  pf.getMeasurements();
+  
+  std::cout << "Measurements ready!" << std::endl;
+  
+  pf.predict();
+  
+  std::cout << "Prediction made!" << std::endl;
+  
+  pf.weightParticles();
+  
+  std::cout << "Particles weighted!" << std::endl;
+  
+  std::vector<Particle> p(pf.p_.size());
+  
+  std::cout << pf.p_.size() << std::endl;
+  
+  std::cout << "New Particles vector generated!" << std::endl;
+  
+
+  p = pf.systematicResample();
+
+  std::cout << "Particles resampled!" << std::endl;
+  
   return 0;
 }
