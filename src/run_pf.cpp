@@ -19,7 +19,7 @@ int main(int argc, char **argv){
   
   pf.weightParticles();
   
-  std::cout << "Particles weighted!" << std::endl;
+  std::cout << "Particles weighted!" << std::endl; //There are no particles in vector p??
   
   std::vector<Particle> p(pf.p_.size());
   

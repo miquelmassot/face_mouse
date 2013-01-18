@@ -38,7 +38,8 @@ void ParticleFilter::generateParticles(int N){
     p_[i].vy = 0;
     p_[i].age = 0;
     p_[i].w = 0;
-  }
+    std::cout << p_[i].x << std::endl;
+   }
 }
 void ParticleFilter::generateParticles(double minx, double maxx, 
                                        double miny, double maxy, 
